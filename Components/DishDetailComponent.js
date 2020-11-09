@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { FlatList, ScrollView, Text, Button, View } from 'react-native';
+import { FlatList, ScrollView, Text, Button, View, Modal , StyleSheet} from 'react-native';
 import { Card, Icon, Input } from 'react-native-elements';
 import {baseURL} from '../Shared/baseURL'
 import { connect } from 'react-redux'
-import { postFavorite } from '../Redux/ActionCreators'
+import { postFavorite, postComment } from '../Redux/ActionCreators'
 import {DISHES} from '../Shared/dishes'
 import {COMMENTS} from '../Shared/comments'
-import Modal from 'react-native-modal'
 import {Rating, AirbnbRating} from 'react-native-ratings'
 
 const mapStateToProps = (state) => {
@@ -18,7 +17,9 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => (
-    {postFavorite: (dishId)=>dispatch(postFavorite(dishId))}
+    {
+    postFavorite: (dishId)=>dispatch(postFavorite(dishId)),
+    postComment: (dishId, rating, author, comment)=> dispatch(postComment(dishId, rating, author, comment))}
 )
 
 function RenderDish(props) {
@@ -54,7 +55,7 @@ function RenderComments (props) {
         return (
             <View key={index} style={{margin: 10}}>
                 <Text style={{fontSize: 14}}>{item.comment}</Text>
-                <View style={{display: 'flex' , justifyContent: 'flex-start'}}>
+                <View style={styles.commentRow}>
                 <Rating showRating={false} imageSize={12} 
                 readonly={true} ratingCount={5} startingValue = {item.rating} />
                 </View>
@@ -87,8 +88,6 @@ class Dishdetail extends Component {
         this.toggleModal = this.toggleModal.bind(this)
         this.setRating = this.setRating.bind(this)
         this.markFavorite = this.markFavorite.bind(this)
-        this.setAuthor = this.setAuthor.bind(this)
-        this.setComment = this.setComment.bind(this)
         this.submitComment = this.submitComment.bind(this)
     }
 
@@ -102,27 +101,20 @@ class Dishdetail extends Component {
         })
     }
 
-    setComment = (val) => {
-        this.setState({
-            comment: val
-        })
-    }
-
-    setAuthor = (val) => {
-        this.setState({
-            author: val
-        })
-    }
-
     toggleModal = () => {
         this.setState({
             showModal: !this.state.showModal
         })
     }
 
-    submitComment =() =>{
+    submitComment =(dishId, rating, author, comment) =>{
+        this.props.postComment(dishId, rating, author, comment)
         this.toggleModal()
-        console.log(this.state.author,this.state.comment, this.state.rating)
+        this.setState({
+            rating: 1,
+            author: '',
+            comment: ''
+        })
     }
 
     static navigationOptions = {
@@ -138,20 +130,26 @@ class Dishdetail extends Component {
             modalToggler={this.toggleModal} favoriteMarker = {() => this.markFavorite(dishId)} />
             <RenderComments comments={this.props.comments.comments.filter((comment)=> comment.dishId === dishId)}/> 
             <View>
-                <Modal isVisible={this.state.showModal}>
-                    <View style={{backgroundColor: 'white', flex: 1}}>
-                        <Rating showRating fractions ={1}
-                         startingValue={1} onFinishRating={(rat) => this.setRating(rat)}/>
-                        <View>
+                <Modal animationType='fade' presentationStyle='fullScreen' visible={this.state.showModal} style={{display: 'flex'}}>
+                    <View style={{flex: 1, display: 'flex'}}>
+                        <View style={styles.moadlRow}>
+                            <Rating showRating fractions ={1}
+                             startingValue={1} onFinishRating={(rat) => this.setRating(rat)}/>
+                        </View>
+                        <View style={styles.moadlRow}>
                             <Input placeholder="Author" leftIcon={{type: "font-awesome", name: 'user-o'}} 
-                            value={this.state.author} onChange={(e)=> this.setAuthor(e.target.value)}/>
+                            value={this.state.author} 
+                            onChangeText={(val)=> this.setState({ author: val})}/>
                         </View>
-                        <View>
+                        <View style={styles.moadlRow}>
                             <Input placeholder="Comment" leftIcon={{type: "font-awesome", name: 'comment-o'}}
-                            value={this.state.comment} onChange={(e)=> this.setComment(e.target.value)} />
+                            value={this.state.comment} 
+                            onChangeText={(val)=> this.setState({comment: val})} />
                         </View>
-                        <View>
-                            <Button title='SUBMIT' onPress = {this.submitComment} color = '#512DA8'/>
+                        <View style={styles.moadlRow}>
+                            <Button title='SUBMIT' onPress = {() => this.submitComment(dishId, this.state.rating, this.state.author, this.state.comment)} color = '#512DA8'/>
+                        </View>
+                        <View style={styles.moadlRow}>    
                             <Button title='CANCEL' onPress = {this.toggleModal} color='gray' />
                         </View>
                     </View>
@@ -161,5 +159,17 @@ class Dishdetail extends Component {
     }
     
 }
+
+const styles = StyleSheet.create({
+    moadlRow: {
+        padding: 10,
+    },
+    commentRow: {
+        padding: 5,
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "flex-start"
+    }
+})
 
 export default connect(mapStateToProps,mapDispatchToProps)(Dishdetail);
