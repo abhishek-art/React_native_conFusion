@@ -1,8 +1,17 @@
 import React, {Component} from 'react';
 import {Text, ScrollView} from 'react-native';
 import { Card, ListItem } from 'react-native-elements';
-import {LEADERS} from '../Shared/leaders';
 import { FlatList } from 'react-native-gesture-handler';
+import {baseURL} from '../Shared/baseURL'
+import { connect } from 'react-redux'
+import { Loading } from './LoadingComponent';
+//import {LEADERS} from '../Shared/leaders'
+
+const mapStateToProps = state => {
+    return {
+        leaders: state.leaders
+    }
+}
 
 function History () {
     return (
@@ -16,41 +25,41 @@ function History () {
     )
 }
 
+const renderleadItem = ({item, index}) => {
+
+    return (
+        <ListItem
+        key={index}
+        title={item.name}
+        subtitle={item.description}
+        hideChevron={true}
+        leftAvatar= {{ source: {uri: baseURL + item.image}}} />
+    );
+};
+
 class AboutUs extends Component{
-        
-    constructor (props){
+
+    constructor(props){
         super(props)
-        this.state={
+        /*this.state = {
             leaders: LEADERS
-        }
+        }*/
     }
 
     render() {
 
-        const renderleadItem = ({item, index}) => {
-
-            return (
-                <ListItem
-                key={index}
-                title={item.name}
-                subtitle={item.description}
-                hideChevron={true}
-                leftAvatar={{ source: require('./images/alberto.png')}} />
-            );
-        };
-
-        return(
-            <ScrollView>
-            <History />
-            <Card title="Corporate Leadership">
-                <FlatList 
-                data={this.state.leaders} 
-                renderItem={renderleadItem} 
-                keyExtractor={item => item.id.toString()} />
-            </Card>
-            </ScrollView>
-        )
+            return(
+                <ScrollView>
+                <History />
+                <Card title="Corporate Leadership">
+                    <FlatList 
+                    data={this.props.leaders.leaders} 
+                    renderItem={renderleadItem} 
+                    keyExtractor={item => item.id.toString()} />
+                </Card>
+                </ScrollView>
+            )
     }
 }
 
-export default AboutUs
+export default connect(mapStateToProps)(AboutUs)

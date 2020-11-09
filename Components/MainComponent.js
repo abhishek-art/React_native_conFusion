@@ -8,7 +8,19 @@ import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '
 import Home from './HomeComponent';
 import ContactUs from './ContactComponent';
 import AboutUs from './AboutComponent';
+import Reservation from './ReservationComponent'
 import {Icon} from 'react-native-elements';
+import { fetchComments, fetchDishes, fetchLeaders, fetchPromos } from '../Redux/ActionCreators'
+import {connect} from 'react-redux'
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchDishes: () => dispatch(fetchDishes()),
+    fetchComments: ()=> dispatch(fetchComments()),
+    fetchPromos: ()=> dispatch(fetchPromos()),
+    fetchLeaders: ()=> dispatch(fetchLeaders())
+  }
+}
 
 const StackNavigatorIcon = ({ navigation }) => {
   return (
@@ -130,9 +142,43 @@ function HomeNavigatorScreen () {
   )
 }
 
+const ReservationNavigator = createStackNavigator()
+
+function ReserveScreen() {
+return(
+  <ReservationNavigator.Navigator screenOptions={{
+    headerStyle:{
+      backgroundColor: '#512DA8'
+    },
+    headerTintColor : '#fff',
+    headerTitleStyle: {
+      color: '#fff'
+    }
+  }}>
+    <ReservationNavigator.Screen name='Reserve Table' component={Reservation} 
+    option={({navigation}) => ({
+      headerLeft: () => 
+          <StackNavigatorIcon navigation={navigation}/>
+  })}/>
+
+  </ReservationNavigator.Navigator>
+)
+}
+
 const MainNavigator = createDrawerNavigator();
 
 class Main extends Component {
+
+  constructor(props){
+    super(props)
+  }
+
+  componentDidMount() {
+    this.props.fetchDishes()
+    this.props.fetchComments()
+    this.props.fetchLeaders()
+    this.props.fetchPromos()
+  }
 
   render() {
  
@@ -159,6 +205,11 @@ class Main extends Component {
           <MainNavigator.Screen name="Anout Us" component={AboutScreen} options={{
             drawerIcon: ({tintColor}) => (<Icon 
               name="info-circle" type="font-awesome" 
+              size={24} color={tintColor}  />)
+          }}/>
+          <MainNavigator.Screen name="Reserve Table" component={ReserveScreen} options={{
+            drawerIcon: ({tintColor}) => (<Icon 
+              name="list" type="font-awesome" 
               size={24} color={tintColor}  />)
           }}/>
         </MainNavigator.Navigator>
@@ -192,4 +243,4 @@ const styles = StyleSheet.create({
 });
 
   
-export default Main;
+export default connect(null, mapDispatchToProps)(Main);
