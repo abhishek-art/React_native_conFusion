@@ -5,6 +5,7 @@ import {connect} from 'react-redux'
 import {baseURL} from '../Shared/baseURL'
 import { DISHES } from '../Shared/dishes';
 import { Loading } from './LoadingComponent';
+import * as Animatable from 'react-native-animatable'
 
 const mapStateToProps = state => {
     return {
@@ -27,6 +28,7 @@ class Menu extends Component {
         const renderMenuItem = ({item, index}) => {
 
             return (
+                <Animatable.View animation="fadeInRightBig" duration={2000}>
                 <Tile
                 key={index}
                 title={item.name}
@@ -34,6 +36,7 @@ class Menu extends Component {
                 featured
                 onPress={() => navigate('Dishdetail', { dishId: item.id })}
                 imageSrc={{uri: baseURL + item.image}} />
+                </Animatable.View>
             );
         };
 

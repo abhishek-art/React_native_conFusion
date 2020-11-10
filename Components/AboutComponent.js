@@ -6,6 +6,7 @@ import {baseURL} from '../Shared/baseURL'
 import { connect } from 'react-redux'
 import { Loading } from './LoadingComponent';
 //import {LEADERS} from '../Shared/leaders'
+import * as Animatable from 'react-native-animatable'
 
 const mapStateToProps = state => {
     return {
@@ -50,13 +51,15 @@ class AboutUs extends Component{
 
             return(
                 <ScrollView>
-                <History />
-                <Card title="Corporate Leadership">
-                    <FlatList 
-                    data={this.props.leaders.leaders} 
-                    renderItem={renderleadItem} 
-                    keyExtractor={item => item.id.toString()} />
-                </Card>
+                    <Animatable.View animation="fadeInDown" duration={2000} delay={1000} >
+                        <History />
+                        <Card title="Corporate Leadership">
+                        <FlatList 
+                        data={this.props.leaders.leaders} 
+                        renderItem={renderleadItem} 
+                        keyExtractor={item => item.id.toString()} />
+                        </Card>
+                    </Animatable.View>
                 </ScrollView>
             )
     }

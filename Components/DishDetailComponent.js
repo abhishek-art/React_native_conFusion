@@ -7,6 +7,7 @@ import { postFavorite, postComment } from '../Redux/ActionCreators'
 import {DISHES} from '../Shared/dishes'
 import {COMMENTS} from '../Shared/comments'
 import {Rating, AirbnbRating} from 'react-native-ratings'
+import * as Animatable from 'react-native-animatable'
 
 const mapStateToProps = (state) => {
     return {
@@ -28,6 +29,7 @@ function RenderDish(props) {
     
         if (dish != null) {
             return(
+                <Animatable.View animation="fadeInDown" duration={2000} delay={1000} >
                 <Card
                 featuredTitle={dish.name}
                 image={{uri: baseURL + dish.image}}>
@@ -40,6 +42,7 @@ function RenderDish(props) {
                         <Icon raised reverse name='pencil' type="font-awesome" color="#512DA8" onPress = {props.modalToggler}/>
                     </View>
                     </Card>
+                    </Animatable.View>
             );
         }
         else {
@@ -65,10 +68,12 @@ function RenderComments (props) {
     }
 
     return(
+        <Animatable.View animation="fadeInUp" duration={2000} delay={1000} >
         <Card title="Comments">
             <FlatList data={comments} renderItem={RenderCommentItem}
             keyExtractor={item => item.id.toString()}></FlatList>
         </Card>
+        </Animatable.View>
     )
 }
 
