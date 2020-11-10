@@ -8,6 +8,7 @@ import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '
 import Home from './HomeComponent';
 import ContactUs from './ContactComponent';
 import AboutUs from './AboutComponent';
+import Favorites from './FavoriteComponent'
 import Reservation from './ReservationComponent'
 import {Icon} from 'react-native-elements';
 import { fetchComments, fetchDishes, fetchLeaders, fetchPromos } from '../Redux/ActionCreators'
@@ -142,6 +143,27 @@ function HomeNavigatorScreen () {
   )
 }
 
+const FavoriteNavigator = createStackNavigator();
+
+function FavoriteScreen () {
+  return (
+    <FavoriteNavigator.Navigator screenOptions={{
+      headerStyle:{
+        backgroundColor: '#512DA8'
+      },
+      headerTintColor : '#fff',
+      headerTitleStyle: {
+        color: '#fff'
+      }
+    }}>
+      <FavoriteNavigator.Screen name="Favorites" component={Favorites} option={({navigation}) => ({
+                        headerLeft: () => 
+                            <StackNavigatorIcon navigation={navigation}/>
+                    })}/>
+    </FavoriteNavigator.Navigator>
+  )
+}
+
 const ReservationNavigator = createStackNavigator()
 
 function ReserveScreen() {
@@ -202,14 +224,19 @@ class Main extends Component {
               name="address-card" type="font-awesome" 
               size={22} color={tintColor}  />)
           }}/>
-          <MainNavigator.Screen name="Anout Us" component={AboutScreen} options={{
+          <MainNavigator.Screen name="About Us" component={AboutScreen} options={{
             drawerIcon: ({tintColor}) => (<Icon 
               name="info-circle" type="font-awesome" 
               size={24} color={tintColor}  />)
           }}/>
+          <MainNavigator.Screen name="Favorites" component={FavoriteScreen} options={{
+            drawerIcon: ({tintColor}) => (<Icon 
+              name="heart" type="font-awesome" 
+              size={24} color={tintColor}  />)
+          }}/>
           <MainNavigator.Screen name="Reserve Table" component={ReserveScreen} options={{
             drawerIcon: ({tintColor}) => (<Icon 
-              name="list" type="font-awesome" 
+              name="cutlery" type="font-awesome" 
               size={24} color={tintColor}  />)
           }}/>
         </MainNavigator.Navigator>
