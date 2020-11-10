@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
-import {Text, View, ScrollView, StyleSheet, Switch, Button, Picker,  Modal, TouchableOpacity} from 'react-native'
+import {Text, View, ScrollView, StyleSheet, Switch, Button, Picker, TouchableOpacity, Alert} from 'react-native'
 //import {Picker} from '@react-native-community/picker'
 import {Icon} from 'react-native-elements'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Moment from 'moment'
+import * as Animatable from 'react-native-animatable'
 
 class Reservation extends Component {
     constructor(props){
@@ -14,15 +15,7 @@ class Reservation extends Component {
             date: new Date,
             show: false,
             mode: 'date',
-            showModal: false
         }
-        this.toggleModal = this.toggleModal.bind(this)
-    }
-
-    toggleModal () {
-        this.setState({
-            showModal: !this.state.showModal
-        })
     }
 
     resetForm(){
@@ -36,15 +29,31 @@ class Reservation extends Component {
     }
 
     handleReservation() {
-        console.log(JSON.stringify(this.state));
-        this.toggleModal()
+        Alert.alert(
+            'Your Reservation OK?',
+            `Number of Guests: ${this.state.guests} \n 
+            Smoking? ${this.state.smoking} \n
+            Date and Time: ${this.state.date}`,
+            [
+                {text: 'CANCEL',
+                onPress: () => {console.log('cancel pressed')
+                                this.resetForm()},
+                style: 'cancel'},
+                {
+                    text: 'OK',
+                    onPress: () =>{console.log('OK pressed')
+                                    this.resetForm()}
+                }
+            ]
+        )
     }
     
 
     render(){
         return (
 
-            <ScrollView>
+            <Animatable.View animation='zoomIn' duration={2000} delay={1000}>
+                <ScrollView>
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Number of Guests</Text>
                     <Picker style={styles.formItem} selectedValue={this.state.guests}
@@ -99,30 +108,16 @@ class Reservation extends Component {
                           mode: "time",
                           date: new Date(date)
                       });
-                  }
-              }}
-          />
-      )}
+                        }
+                    }}
+            />
+        )}
                 </View>
                 <View style={styles.formRow}>
-                    <Button title='Reserve' color="#512AD8" onPress={()=>this.handleReservation()}
-                    accessibilityLabel='Learn More About the Purple Button' />
+                    <Button title='Reserve' color="#512AD8" onPress={()=>this.handleReservation()}/>
                 </View>
-                <Modal animationType='slide'
-                    transparent={false}
-                    visible={this.state.showModal}
-                    onDismiss={()=> {this.toggleModal(); this.resetForm()}}
-                    onRequestClose={()=> {this.toggleModal(); this.resetForm()}}>
-                        <View style={styles.modal}>
-                            <Text style={styles.modalTitle}>Your Reservation</Text>
-                            <Text style={styles.modalText}>Number of Guests : {this.state.guests}</Text>
-                            <Text style={styles.modalText}>Smoking? : {this.state.smoking ? 'YES' : 'NO'}</Text>
-                            <Text style={styles.modalText}>Date and Time : {this.state.date}</Text>
-                            <Button onPress={()=> {this.toggleModal(); this.resetForm()}}
-                                    color='#512DA8'>Close</Button>
-                        </View>
-                </Modal>
-            </ScrollView>
+                </ScrollView>
+            </Animatable.View>
         )
     }
 }
