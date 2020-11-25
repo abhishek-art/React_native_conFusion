@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Menu from './MenuComponent';
 import Dishdetail from './DishDetailComponent';
-import {View, ScrollView, Image, Text, StyleSheet} from 'react-native';
+import {View, ScrollView, Image, Text, StyleSheet, ToastAndroid} from 'react-native';
 import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createStackNavigator} from '@react-navigation/stack';
 import { createDrawerNavigator, DrawerItemList, DrawerContentScrollView } from '@react-navigation/drawer';
@@ -10,9 +10,11 @@ import ContactUs from './ContactComponent';
 import AboutUs from './AboutComponent';
 import Favorites from './FavoriteComponent'
 import Reservation from './ReservationComponent'
+import Login from './LoginComponent'
 import {Icon} from 'react-native-elements';
 import { fetchComments, fetchDishes, fetchLeaders, fetchPromos } from '../Redux/ActionCreators'
 import {connect} from 'react-redux'
+import NetInfo from '@react-native-community/netinfo'
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -164,6 +166,27 @@ function FavoriteScreen () {
   )
 }
 
+const LoginNavigator = createStackNavigator();
+
+function LoginScreen () {
+  return (
+    <LoginNavigator.Navigator screenOptions={{
+      headerStyle:{
+        backgroundColor: '#512DA8'
+      },
+      headerTintColor : '#fff',
+      headerTitleStyle: {
+        color: '#fff'
+      }
+    }}>
+      <LoginNavigator.Screen name="Login" component={Login} option={({navigation}) => ({
+                        headerLeft: () => 
+                            <StackNavigatorIcon navigation={navigation}/>
+                    })}/>
+    </LoginNavigator.Navigator>
+  )
+}
+
 const ReservationNavigator = createStackNavigator()
 
 function ReserveScreen() {
@@ -200,6 +223,36 @@ class Main extends Component {
     this.props.fetchComments()
     this.props.fetchLeaders()
     this.props.fetchPromos()
+
+    NetInfo.fetch().then((connectionInfo) => {
+      ToastAndroid.show('Initial Network Connectivity Type: '
+          + connectionInfo.type, ToastAndroid.LONG)
+    });
+  
+  NetInfo.addEventListener(connectionChange => this.handleConnectivityChange(connectionChange))
+}
+
+  componentWillUnmount(){
+    NetInfo.removeEventListener(connectionChange => this.handleConnectivityChange(connectionChange))
+  }
+
+  handleConnectivityChange = (connectionInfo) => {
+    switch(connectionInfo.type){
+      case 'none':
+        ToastAndroid.show('You are now offline', ToastAndroid.LONG)
+        break
+      case 'wifi':
+        ToastAndroid.show('You are now connected to wifi', ToastAndroid.LONG)
+        break
+      case 'cellular':
+        ToastAndroid.show('You are now connected to cellular', ToastAndroid.LONG)
+        break
+      case 'unknown':
+        ToastAndroid.show('You now have an unknown connection', ToastAndroid.LONG)
+        break
+      default:
+        break
+    }
   }
 
   render() {
@@ -209,6 +262,11 @@ class Main extends Component {
         <MainNavigator.Navigator initialRouteName="Home" drawerStyle={{
                 backgroundColor:'#D1C4E9'
             }} drawerContent={props=> <CustomDrawerContentComponent {...props} />}>
+          <MainNavigator.Screen name="Login" component={LoginScreen} options={{
+            drawerIcon: ({tintColor}) => (<Icon 
+              name="sign-in" type="font-awesome" 
+              size={24} color={tintColor}  />)
+          }}/>
           <MainNavigator.Screen name="Home" component={HomeNavigatorScreen} options={{
             drawerIcon: ({tintColor}) => (<Icon 
               name="home" type="font-awesome" 

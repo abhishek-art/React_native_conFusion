@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, ScrollView, Text, Button, View, Modal , StyleSheet, Alert, PanResponder} from 'react-native';
+import { FlatList, ScrollView, Text, Button, View, Modal , StyleSheet, Alert, PanResponder, Share} from 'react-native';
 import { Card, Icon, Input } from 'react-native-elements';
 import {baseURL} from '../Shared/baseURL'
 import { connect } from 'react-redux'
@@ -82,6 +82,8 @@ function RenderDish(props) {
                         <Icon raised reverse name={props.favorite ? 'heart' : 'heart-o'} type="font-awesome" color='#f50'
                         onPress={()=> {props.favorite ? console.log('Already Favorite'): props.favoriteMarker()}} />
                         <Icon raised reverse name='pencil' type="font-awesome" color="#512DA8" onPress = {props.modalToggler}/>
+                        <Icon raised reverse name='share' type='font-awesome' color='#51D2A8' 
+                        onPress={() => props.shareDish(dish.name, dish.description, baseURL + dish.image)} />
                     </View>
                     </Card>
                     </Animatable.View>
@@ -136,6 +138,7 @@ class Dishdetail extends Component {
         this.setRating = this.setRating.bind(this)
         this.markFavorite = this.markFavorite.bind(this)
         this.submitComment = this.submitComment.bind(this)
+        this.shareDish = this.shareDish.bind(this)
     }
 
     markFavorite = (dishId) => {
@@ -164,6 +167,16 @@ class Dishdetail extends Component {
         })
     }
 
+    shareDish = (title, message, url) => {
+        Share.share({
+            title: title,
+            message: title + ': '+ message + ' ' + url,
+            url: url
+        }, {
+            dialogTitle: 'Share ' + title
+        })
+    }
+
     static navigationOptions = {
         title: 'Dish Details'
     }
@@ -174,7 +187,8 @@ class Dishdetail extends Component {
         return(
         <ScrollView>
             <RenderDish dish={this.props.dishes.dishes[+dishId]} favorite= {this.props.favorites.some(el => el=== dishId)}
-            modalToggler={this.toggleModal} favoriteMarker = {() => this.markFavorite(dishId)} />
+            modalToggler={this.toggleModal} favoriteMarker = {() => this.markFavorite(dishId)} 
+            shareDish = {this.shareDish}/>
             <RenderComments comments={this.props.comments.comments.filter((comment)=> comment.dishId === dishId)}/> 
             <View>
                 <Modal animationType='fade' presentationStyle='fullScreen' visible={this.state.showModal} style={{display: 'flex'}}>
